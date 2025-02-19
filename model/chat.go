@@ -1,7 +1,10 @@
 package model
 
 import (
+	"errors"
+	"gin-gorilla/global"
 	"gin-gorilla/model/ctype"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -20,4 +23,24 @@ type ChatModel struct {
 	Addr    string        `json:"addr" gorm:"column:addr"`
 	IsGroup bool          `json:"is_group" gorm:"column:is_group"`
 	MsgType ctype.MsgType `json:"msg_type" gorm:"column:msg_type"`
+}
+
+func SelectUsername(userid string) (username string) {
+	var userModel UserModel
+	err := global.DB.Select("username").Where("user_id = ?", userid).First(&userModel).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		global.Log.Error(err.Error())
+		return
+	}
+	username = userModel.UserName
+	return
+}
+func SelectAvatar(userid string) (avatar string) {
+	var userModel UserModel
+	err := global.DB.Select("avatar").Where("user_id = ?", userid).First(&userModel).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		global.Log.Info("没有头像,将使用默认头像")
+	}
+	avatar = userModel.Avatar
+	return
 }

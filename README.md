@@ -136,3 +136,46 @@
 }
 
 ```
+
+
+### 聊天室 websocket
+
+#### 群聊
+
+需要用户携带token
+
+`ws://127.0.0.1:8080/api/chat_groups`
+
+| 类型(int)       | 值   |
+| --------------- | ---- |
+| SystemMsg       | 1    |
+| InRoomMsg2      | 2    |
+| OutRoomMsg      | 3    |
+| TextMsg         | 4    |
+| FileMsg         | 5    |
+| FileProgressMsg | 6    |
+| ImageMsg        | 7    |
+
+
+
+```
+// req
+{
+    "content": "hello 2号",
+    "msg_type": 4
+}
+
+// resp
+{
+    "user_id": "97ab096e2a",
+    "username": "测试用户",
+    "avatar": "uploads/avatar/测试用户.png",
+    "msg_type": 4,
+    "content": "hello 2号",
+    "date": "2025-02-19T16:29:52.6806232+08:00",
+    "online_count": 1
+}
+```
+
+
+
