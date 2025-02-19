@@ -16,5 +16,7 @@ func (router *RouterGroup) UsersRouter() {
 	router.POST("users/login", usersApi.UserEmailLoginView)
 	// 鉴权
 	router.POST("users/logout", middleware.JwtAuth(), usersApi.UserLogoutView)
+	// 列表
+	router.GET("users", middleware.JwtAuth(), usersApi.UserListView)
 
 }

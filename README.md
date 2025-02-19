@@ -107,4 +107,32 @@
     "msg": "注销成功"
 }
 ```
+#### 用户列表
 
+| params | value             |
+| ------ | ----------------- |
+| limit  | 10                |
+| page   | 1                 |
+| sort   | username asc/desc |
+
+```
+// resp
+{
+    "code": 0,
+    "data": {
+        "count": 1,
+        "list": [
+            {
+                "created_at": "0001-01-01T00:00:00Z",
+                "updated_at": "0001-01-01T00:00:00Z",
+                "user_id": "2a67f4734d",
+                "user_name": "第二个人",
+                "avatar": "uploads/avatar/第二个人.png",
+                "email": "fmnnzu512@outlook.com"
+            },
+        ]
+    },
+    "msg": "成功"
+}
+
+```

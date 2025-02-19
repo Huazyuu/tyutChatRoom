@@ -1,4 +1,4 @@
-package redisServer
+package redisService
 
 import (
 	"gin-gorilla/global"

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"gin-gorilla/global"
 	"gin-gorilla/res"
-	"gin-gorilla/service/userServer"
+	"gin-gorilla/service/userService"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,7 +22,7 @@ func (UsersApi) UserRegisterView(c *gin.Context) {
 		res.FailWithError(err, &cr, c)
 		return
 	}
-	err := userServer.UserService{}.CreateUser(cr.UserName, cr.Password, cr.Email)
+	err := userService.UserService{}.CreateUser(cr.UserName, cr.Password, cr.Email)
 	if err != nil {
 		global.Log.Error(err)
 		res.FailWithMessage("邮箱已被使用", c)

@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"gin-gorilla/res"
-	"gin-gorilla/service/redisServer"
+	"gin-gorilla/service/redisService"
 	"gin-gorilla/utils/jwt"
 	"github.com/gin-gonic/gin"
 )
@@ -24,7 +24,7 @@ func JwtAuth() gin.HandlerFunc {
 			return
 		}
 		// 是否在redis中
-		if redisServer.CheckLogout(token) {
+		if redisService.CheckLogout(token) {
 			res.FailWithMessage("token已失效", c)
 			c.Abort()
 			return

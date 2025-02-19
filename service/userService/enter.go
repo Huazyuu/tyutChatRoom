@@ -1,3 +1,3 @@
-package userServer
+package userService
 
 type UserService struct{}

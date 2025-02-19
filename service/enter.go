@@ -1,9 +1,9 @@
 package service
 
-import "gin-gorilla/service/userServer"
+import "gin-gorilla/service/userService"
 
 type ServiceGroup struct {
-	UserService userServer.UserService
+	UserService userService.UserService
 }
 
 var ServiceApp = new(ServiceGroup)
