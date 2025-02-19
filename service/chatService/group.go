@@ -1,29 +1,29 @@
 package chatService
 
 import (
+	"encoding/json"
 	"fmt"
-	"gin-gorilla/api/chat_api/chatComm"
+	"gin-gorilla/common/chatComm"
 	"gin-gorilla/global"
 	"gin-gorilla/model"
 	"gin-gorilla/model/ctype"
-	"github.com/goccy/go-json"
 	"github.com/gorilla/websocket"
 	"strings"
 	"time"
 )
 
 // ChatgroupService 处理群聊
-func ChatgroupService(conn *websocket.Conn, chatUser chatComm.ChatUser) {
+func ChatgroupService(conn *websocket.Conn, cu chatComm.ChatUser) {
 	for {
 		// 读取聊天数据 json格式
 		_, content, err := conn.ReadMessage()
 		if err != nil {
 			// 断开连接
 			sendGroupMsg(conn, chatComm.GroupResponse{
-				UserId:      chatUser.UserID,
-				Username:    chatUser.Username,
-				Avatar:      chatUser.Avatar,
-				Content:     fmt.Sprintf("[%s]离开聊天室", chatUser.Username),
+				UserId:      cu.UserID,
+				Username:    cu.Username,
+				Avatar:      cu.Avatar,
+				Content:     fmt.Sprintf("[%s]离开聊天室", cu.Username),
 				Date:        time.Now(),
 				MsgType:     ctype.OutRoomMsg,
 				OnlineCount: len(chatComm.ConnGroupMap) - 1,
@@ -35,10 +35,10 @@ func ChatgroupService(conn *websocket.Conn, chatUser chatComm.ChatUser) {
 		err = json.Unmarshal(content, &req)
 		if err != nil {
 			// 参数绑定失败
-			sendMsg(conn, chatUser.UserID, chatComm.GroupResponse{
-				UserId:      chatUser.UserID,
-				Username:    chatUser.Username,
-				Avatar:      chatUser.Avatar,
+			sendMsg(conn, cu.UserID, chatComm.GroupResponse{
+				UserId:      cu.UserID,
+				Username:    cu.Username,
+				Avatar:      cu.Avatar,
 				MsgType:     ctype.SystemMsg,
 				Date:        time.Now(),
 				Content:     "参数绑定失败",
@@ -51,10 +51,10 @@ func ChatgroupService(conn *websocket.Conn, chatUser chatComm.ChatUser) {
 		case ctype.TextMsg:
 			// 内容为空
 			if strings.TrimSpace(req.Content) == "" {
-				sendMsg(conn, chatUser.UserID, chatComm.GroupResponse{
-					UserId:      chatUser.UserID,
-					Username:    chatUser.Username,
-					Avatar:      chatUser.Avatar,
+				sendMsg(conn, cu.UserID, chatComm.GroupResponse{
+					UserId:      cu.UserID,
+					Username:    cu.Username,
+					Avatar:      cu.Avatar,
 					MsgType:     ctype.SystemMsg,
 					Content:     "消息不能为空",
 					OnlineCount: len(chatComm.ConnGroupMap),
@@ -62,9 +62,9 @@ func ChatgroupService(conn *websocket.Conn, chatUser chatComm.ChatUser) {
 				continue
 			}
 			sendGroupMsg(conn, chatComm.GroupResponse{
-				UserId:      chatUser.UserID,
-				Username:    chatUser.Username,
-				Avatar:      chatUser.Avatar,
+				UserId:      cu.UserID,
+				Username:    cu.Username,
+				Avatar:      cu.Avatar,
 				Content:     req.Content,
 				MsgType:     ctype.TextMsg,
 				Date:        time.Now(),
@@ -72,18 +72,18 @@ func ChatgroupService(conn *websocket.Conn, chatUser chatComm.ChatUser) {
 			})
 		case ctype.InRoomMsg:
 			sendGroupMsg(conn, chatComm.GroupResponse{
-				UserId:      chatUser.UserID,
-				Username:    chatUser.Username,
-				Avatar:      chatUser.Avatar,
-				Content:     fmt.Sprintf("[%s]进入聊天室", chatUser.Username),
+				UserId:      cu.UserID,
+				Username:    cu.Username,
+				Avatar:      cu.Avatar,
+				Content:     fmt.Sprintf("[%s]进入聊天室", cu.Username),
 				Date:        time.Now(),
 				OnlineCount: len(chatComm.ConnGroupMap),
 			})
 		default:
-			sendMsg(conn, chatUser.UserID, chatComm.GroupResponse{
-				UserId:      chatUser.UserID,
-				Username:    chatUser.Username,
-				Avatar:      chatUser.Avatar,
+			sendMsg(conn, cu.UserID, chatComm.GroupResponse{
+				UserId:      cu.UserID,
+				Username:    cu.Username,
+				Avatar:      cu.Avatar,
 				MsgType:     ctype.SystemMsg,
 				Content:     "消息类型错误",
 				OnlineCount: len(chatComm.ConnGroupMap),

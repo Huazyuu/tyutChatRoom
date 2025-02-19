@@ -2,22 +2,17 @@ package user_api
 
 import (
 	"fmt"
+	"gin-gorilla/common/userCommon"
 	"gin-gorilla/global"
 	"gin-gorilla/res"
 	"gin-gorilla/service/userService"
 	"github.com/gin-gonic/gin"
 )
 
-type UserRegisterRequest struct {
-	UserName string `json:"username" binding:"required" msg:"请输入用户名"`
-	Password string `json:"password" binding:"required" msg:"请输入密码"`
-	Email    string `json:"email" binding:"required" msg:"请输入邮箱"`
-}
-
 // UserRegisterView 创建用户
 
 func (UsersApi) UserRegisterView(c *gin.Context) {
-	var cr UserRegisterRequest
+	var cr userCommon.UserRegisterRequest
 	if err := c.ShouldBindJSON(&cr); err != nil {
 		res.FailWithError(err, &cr, c)
 		return

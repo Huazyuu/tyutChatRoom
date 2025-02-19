@@ -2,19 +2,11 @@ package chatComm
 
 import (
 	"gin-gorilla/model/ctype"
-	"github.com/gorilla/websocket"
 	"time"
 )
 
 // ConnGroupMap 用户map
 var ConnGroupMap = make(map[string]ChatUser)
-
-type ChatUser struct {
-	Conn     *websocket.Conn
-	UserID   string `json:"userid"`
-	Username string `json:"username"` // 前端自己生成
-	Avatar   string `json:"avatar"`   // 头像 查表
-}
 
 // GroupRequest 请求
 type GroupRequest struct {

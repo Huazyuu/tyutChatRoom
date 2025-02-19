@@ -2,6 +2,7 @@ package user_api
 
 import (
 	"fmt"
+	"gin-gorilla/common/userCommon"
 	"gin-gorilla/global"
 	"gin-gorilla/model"
 	"gin-gorilla/plugins/email"
@@ -13,16 +14,10 @@ import (
 	"math/rand"
 )
 
-type UserLoginRequest struct {
-	Email    string  `json:"email" binding:"required,email" msg:"非法邮箱"`
-	Code     *string `json:"code"`
-	Password string  `json:"password"`
-}
-
 var emailFirstReq string
 
 func (UsersApi) UserEmailLoginView(c *gin.Context) {
-	var cr UserLoginRequest
+	var cr userCommon.UserLoginRequest
 
 	if err := c.ShouldBindJSON(&cr); err != nil {
 		res.FailWithError(err, &cr, c)

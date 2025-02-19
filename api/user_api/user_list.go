@@ -1,18 +1,13 @@
 package user_api
 
 import (
+	"gin-gorilla/common/userCommon"
 	"gin-gorilla/global"
 	"gin-gorilla/model"
 	"gin-gorilla/res"
 	"gin-gorilla/utils/jwt"
 	"github.com/gin-gonic/gin"
 )
-
-type UserListRequest struct {
-	Page  int    `form:"page"`
-	Limit int    `form:"limit"`
-	Sort  string `form:"sort"`
-}
 
 func (UsersApi) UserListView(c *gin.Context) {
 	_claims, _ := c.Get("claims")
@@ -23,7 +18,7 @@ func (UsersApi) UserListView(c *gin.Context) {
 		return
 	}
 	// 分页查询
-	var req UserListRequest
+	var req userCommon.UserListRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		res.FailWithCode(res.ArgumentError, c)
 		return
