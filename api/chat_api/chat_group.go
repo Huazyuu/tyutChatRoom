@@ -21,24 +21,25 @@ func (ChatApi) ChatGroupView(c *gin.Context) {
 		res.FailWithCode(res.ArgumentError, c)
 		return
 	}
-	// JWT 获取username userid
+	// JWT 获取 user info
 	username := claims.Username
 	userid := claims.UserID
-	// addr
 	addr := conn.RemoteAddr().String()
-	// avatar
 	avatar := model.SelectAvatar(userid)
-	// add user
+
 	chatUser := chatComm.ChatUser{
 		Conn:     conn,
-		UserID:   claims.UserID,
-		Username: claims.Username,
+		UserID:   username,
+		Username: userid,
 		Avatar:   avatar,
 	}
+	mu.Lock()
 	chatComm.ConnGroupMap[userid] = chatUser
 	global.Log.Infof("[%s][%s]连接成功", addr, username)
+	mu.Unlock()
+
 	// 处理数据
-	chatService.ChatgroupService(conn, chatUser)
+	chatService.ChatGroupService(conn, chatUser)
 	// 断开连接
 	defer conn.Close()
 	delete(chatComm.ConnGroupMap, userid)

@@ -176,6 +176,45 @@
     "online_count": 1
 }
 ```
+#### 私聊
 
+需要用户携带token
+
+```
+ws://127.0.0.1:8080/api/chat_private?target_id=xxxx
+需要传递param query target_id
+```
+
+| 类型(int)       | 值   |
+| --------------- | ---- |
+| SystemMsg       | 1    |
+| InRoomMsg2      | 2    |
+| OutRoomMsg      | 3    |
+| TextMsg         | 4    |
+| FileMsg         | 5    |
+| FileProgressMsg | 6    |
+| ImageMsg        | 7    |
+
+```
+// req
+{
+    "content": "hello 2号",
+    "msg_type": 4
+}
+
+// resp
+{
+    "user_id": "97ab096e2a",
+    "username": "测试用户",
+    "avatar": "uploads/avatar/测试用户.png",
+    "target_id": "dfe0b20eb9",
+    "target_name": "adminUser",
+    "target_avatar": "uploads/avatar/adminUser.png",
+    "msg_type": 4,
+    "content": "hello 2号",
+    "date": "2025-02-19T22:10:58.5416886+08:00",
+    "online_count": 2
+}
+```
 
 

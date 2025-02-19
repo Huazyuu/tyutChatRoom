@@ -6,12 +6,11 @@ import (
 )
 
 // ConnPrivateMap 用户map
-var ConnPrivateMap = make(map[string]ChatUser)
+var ConnPrivateMap = make(map[string][]ChatUser)
 
 type PrivateRequest struct {
-	TargetID string        `json:"target_id"` // 接收用户
-	MsgType  ctype.MsgType `json:"msg_type"`  // 消息类型
-	Content  string        `json:"content"`   // 消息内容
+	MsgType ctype.MsgType `json:"msg_type"` // 消息类型
+	Content string        `json:"content"`  // 消息内容
 }
 
 // PrivateResponse 响应

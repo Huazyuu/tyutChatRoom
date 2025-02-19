@@ -12,8 +12,8 @@ import (
 	"time"
 )
 
-// ChatgroupService 处理群聊
-func ChatgroupService(conn *websocket.Conn, cu chatComm.ChatUser) {
+// ChatGroupService 处理群聊
+func ChatGroupService(conn *websocket.Conn, cu chatComm.ChatUser) {
 	for {
 		// 读取聊天数据 json格式
 		_, content, err := conn.ReadMessage()
@@ -97,14 +97,14 @@ func ChatgroupService(conn *websocket.Conn, cu chatComm.ChatUser) {
 func sendGroupMsg(conn *websocket.Conn, response chatComm.GroupResponse) {
 	byteData, _ := json.Marshal(response)
 	_addr := conn.RemoteAddr().String()
-	ip, addr := getIPAndAddr(_addr)
+	ip, port := getIPAndAddr(_addr)
 
 	global.DB.Create(&model.ChatModel{
 		UserID:   response.UserId,
 		TargetID: response.UserId,
 		Content:  response.Content,
 		IP:       ip,
-		Addr:     addr,
+		Addr:     port,
 		IsGroup:  true,
 		MsgType:  response.MsgType,
 	})
@@ -122,7 +122,7 @@ func sendMsg(conn *websocket.Conn, userid string, response chatComm.GroupRespons
 	ip, port := getIPAndAddr(_addr)
 
 	global.DB.Create(&model.ChatModel{
-		UserID:  response.Username,
+		UserID:  response.UserId,
 		Content: response.Content,
 		IP:      ip,
 		Addr:    port,
