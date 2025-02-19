@@ -1,0 +1,40 @@
+mysql:
+    host: 127.0.0.1
+    port: 3306
+    config: charset=utf8mb4&parseTime=True&loc=Local
+    db: gingorilla_db
+    user: root
+    password: 123456
+    log_level: dev
+    max_idle_conns: 10
+    max_open_conns: 100
+    max_conn_lifetime: 14400
+log:
+  level: debug
+  prefix: '[gin-ws]'
+  director: log
+  show_line: true
+  log_in_console: true
+  path: ./log/myLog.log
+system:
+    host: 0.0.0.0
+    port: 8080
+    env: debug
+redis:
+    ip: 127.0.0.1
+    port: 6379
+    password: ""
+    pool_size: 100
+    db: 0
+jwt:
+    secret: 
+    expires: 
+    issuer: 
+email:
+    host: 
+    port: 
+    user: 
+    password: 
+    default_from_email: 
+    use_ssl: 
+    user_tls: 
