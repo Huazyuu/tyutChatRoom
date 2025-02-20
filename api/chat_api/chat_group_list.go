@@ -43,7 +43,7 @@ func (ChatApi) ChatGroupListView(c *gin.Context) {
 		// 目标名称错误,将返回所有记录
 		query := global.DB.
 			Select("user_id", "content", "created_at", "ip", "addr").
-			Where("chat_models.is_group = 1")
+			Where("chat_models.is_group = 1  AND msg_type = 4")
 		result := query.Offset(offset).Limit(req.Limit).Order(req.Sort).Find(&chats)
 		if result.Error != nil {
 			global.Log.Error(result.Error)
@@ -55,7 +55,7 @@ func (ChatApi) ChatGroupListView(c *gin.Context) {
 	} else {
 		query := global.DB.
 			Select("user_id", "content", "created_at", "ip", "addr").
-			Where("chat_models.is_group = 1 AND user_id = ?", searchid)
+			Where("chat_models.is_group = 1 AND user_id = ? AND msg_type = 4", searchid)
 		result := query.Offset(offset).Limit(req.Limit).Find(&chats)
 		if result.Error != nil {
 			global.Log.Error(result.Error)

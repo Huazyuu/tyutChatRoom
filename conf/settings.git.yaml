@@ -38,3 +38,5 @@ email:
     default_from_email: 
     use_ssl: 
     user_tls: 
+      
+upload_path: uploads

@@ -28,14 +28,14 @@ func ChatPrivateService(conn *websocket.Conn, cu chatComm.ChatUser, targetid str
 		case ctype.TextMsg:
 			handlePrivateTextMessage(conn, cu, targetid, req)
 		case ctype.FileMsg:
-			// handlePrivateFileMessage(conn, userid, msgReq)
+			handlePrivateFileMessage(conn, cu, targetid, req)
 		default:
 			_ = sendPrivateSystemMsg(conn, "不支持的消息类型")
 		}
 	}
 }
 
-// 发送私聊系统消息
+// sendPrivateSystemMsg 发送私聊系统消息
 func sendPrivateSystemMsg(conn *websocket.Conn, content string) error {
 	response := chatComm.PrivateResponse{
 		MsgType: ctype.SystemMsg,
@@ -45,7 +45,7 @@ func sendPrivateSystemMsg(conn *websocket.Conn, content string) error {
 	return sendPrivateMessage(conn, response)
 }
 
-// 通用私聊消息发送
+// sendPrivateMessage 通用私聊消息发送
 func sendPrivateMessage(conn *websocket.Conn, response chatComm.PrivateResponse) error {
 	byteData, _ := json.Marshal(response)
 
@@ -64,7 +64,7 @@ func sendPrivateMessage(conn *websocket.Conn, response chatComm.PrivateResponse)
 	return conn.WriteMessage(websocket.TextMessage, byteData)
 }
 
-// 发送私聊回执系统消息
+// sendBackSystemMsg 发送私聊回执系统消息
 func sendBackSystemMsg(conn *websocket.Conn, content string) error {
 	response := chatComm.PrivateResponse{
 		MsgType: ctype.SystemMsg,
@@ -74,7 +74,7 @@ func sendBackSystemMsg(conn *websocket.Conn, content string) error {
 	return sendBackMessage(conn, response)
 }
 
-// 通用私聊回执消息发送
+// sendBackMessage 通用私聊回执消息发送
 func sendBackMessage(conn *websocket.Conn, response chatComm.PrivateResponse) error {
 	byteData, _ := json.Marshal(response)
 	return conn.WriteMessage(websocket.TextMessage, byteData)
