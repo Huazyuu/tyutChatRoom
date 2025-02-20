@@ -43,4 +43,5 @@ func (ChatApi) ChatGroupView(c *gin.Context) {
 	// 断开连接
 	defer conn.Close()
 	delete(chatComm.ConnGroupMap, userid)
+
 }

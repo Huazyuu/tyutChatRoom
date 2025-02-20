@@ -17,7 +17,6 @@ func GenToken(user JwtPayLoad) (string, error) {
 			Issuer:    global.Config.Jwt.Issuer, // 签发人
 		},
 	}
-
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
 	return token.SignedString(MySecret)
 }

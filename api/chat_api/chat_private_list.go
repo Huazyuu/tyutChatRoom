@@ -47,7 +47,7 @@ func (ChatApi) ChatPrivateListView(c *gin.Context) {
 	}
 	query := global.DB.
 		Select("user_id", "target_id", "content", "created_at", "ip", "addr").
-		Where("chat_models.is_group = 0 AND user_id = ? and target_id = ?", claims.UserID, searchid)
+		Where("chat_models.is_group = 0  AND msg_type = 4 AND user_id = ? AND target_id = ?", claims.UserID, searchid)
 	result := query.Offset(offset).Limit(req.Limit).Find(&chats)
 	if result.Error != nil || result.RowsAffected == 0 {
 		global.Log.Error(result.Error)

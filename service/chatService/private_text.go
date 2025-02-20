@@ -16,7 +16,7 @@ var mu sync.Mutex
 func handlePrivateTextMessage(conn *websocket.Conn, cu chatComm.ChatUser, targetid string, req chatComm.PrivateRequest) {
 	if strings.TrimSpace(req.Content) == "" {
 		global.Log.Info("请求内容为空")
-		_ = sendPrivateSystemMsg(conn, "消息内容不能为空")
+		_ = sendBackSystemMsg(conn, "消息内容不能为空")
 		return
 	}
 	// 根据当前用户和目标用户生成房间ID
@@ -28,7 +28,7 @@ func handlePrivateTextMessage(conn *websocket.Conn, cu chatComm.ChatUser, target
 	mu.Unlock()
 	// 如果房间不存在或者接收方不在线
 	if !exists {
-		_ = sendPrivateSystemMsg(conn, "目标用户不在线或房间不存在")
+		_ = sendBackSystemMsg(conn, "目标用户不在线或房间不存在")
 		return
 	}
 	// 在房间中找到目标用户的连接
@@ -41,7 +41,7 @@ func handlePrivateTextMessage(conn *websocket.Conn, cu chatComm.ChatUser, target
 	}
 	// 如果目标用户未找到
 	if receiver == nil {
-		_ = sendPrivateSystemMsg(conn, "目标用户不在线")
+		_ = sendBackSystemMsg(conn, "目标用户不在线")
 		return
 	}
 
@@ -61,7 +61,7 @@ func handlePrivateTextMessage(conn *websocket.Conn, cu chatComm.ChatUser, target
 		OnlineCount:  len(usersInRoom),
 	})
 	if err != nil {
-		_ = sendPrivateSystemMsg(conn, "发送消息失败")
+		_ = sendBackSystemMsg(conn, "发送消息失败")
 	}
 	// 回执
 	err = sendBackMessage(conn, chatComm.PrivateResponse{
