@@ -51,6 +51,8 @@ go version >= 1.20
 
 #### 注册
 
+`http://127.0.0.1:8080/api/users/register`
+
 ```
 // request 
 {
@@ -68,6 +70,8 @@ go version >= 1.20
 ```
 
 #### 登录
+
+`http://127.0.0.1:8080/api/users/login`
 
 ```
 // 第一次request 
@@ -107,6 +111,8 @@ go version >= 1.20
 
 #### 注销
 
+`http://127.0.0.1:8080/api/users/logout`
+
 不需要 req json
 
 前端需要再request header中添加token
@@ -121,7 +127,10 @@ go version >= 1.20
     "msg": "注销成功"
 }
 ```
+
 #### 用户列表
+
+`http://127.0.0.1:8080/api/users`
 
 | params | value             |
 | ------ | ----------------- |
@@ -190,9 +199,12 @@ go version >= 1.20
     "online_count": 1
 }
 ```
+
 #### 私聊
 
 需要用户携带token
+
+`ws://127.0.0.1:8080/api/chat_private`
 
 ```
 ws://127.0.0.1:8080/api/chat_private?target_id=xxxx
@@ -231,4 +243,32 @@ ws://127.0.0.1:8080/api/chat_private?target_id=xxxx
 }
 ```
 
+
+#### 聊天记录
+
+需要用户携带token
+
+##### 群聊
+
+`http://127.0.0.1:8080/api/chat_groupList`
+
+
+| params   | value                                                    |
+| -------- | -------------------------------------------------------- |
+| limit    | 10                                                       |
+| page     | 1                                                        |
+| sort     | username asc/desc                                        |
+| username | 输入用户名查找其群聊记录,用户名为空或错误,将显示所有记录 |
+
+##### 私聊
+
+`http://127.0.0.1:8080/api/chat_privateList`
+
+
+| params   | value                          |
+| -------- | ------------------------------ |
+| limit    | 10                             |
+| page     | 1                              |
+| sort     | username asc/desc              |
+| username | 输入用户名查找于其相关私聊记录 |
 

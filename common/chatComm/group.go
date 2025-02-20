@@ -24,3 +24,11 @@ type GroupResponse struct {
 	Date        time.Time     `json:"date"`         // 消息的时间
 	OnlineCount int           `json:"online_count"` // 在线人数
 }
+
+// ChatListRequest 列表
+type ChatListRequest struct {
+	Username string `form:"username"`
+	Page     int    `form:"page"`
+	Limit    int    `form:"limit"`
+	Sort     string `form:"sort"`
+}
