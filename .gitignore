@@ -1,4 +1,40 @@
+# VSCode settings
+.vscode
+
+# IDEA files
 .idea
-log
-uploads/avatar
+
+# OSX dir files
+.DS_Store
+
+# Sublime Text settings
+*.sublime-workspace
+*.sublime-project
+
+# conf please use settings_git.yaml
 conf/settings.yaml
+
+# Build
+bulid/
+*.exe
+
+# dotenv
+.env
+
+# venv
+/vendor/
+
+# Binaries for programs and plugins
+*.exe~
+*.dll
+*.so
+*.dylib
+ 
+# Log
+log
+*.log
+
+# generate img
+uploads/avatar
+
+

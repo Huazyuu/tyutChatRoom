@@ -99,9 +99,11 @@ func sendGroupMsg(conn *websocket.Conn, response chatComm.GroupResponse) {
 	_addr := conn.RemoteAddr().String()
 	ip, port := getIPAndAddr(_addr)
 
+	// global.Log.Debug(response)
+
 	global.DB.Create(&model.ChatModel{
 		UserID:   response.UserId,
-		TargetID: response.UserId,
+		TargetID: "globaluser",
 		Content:  response.Content,
 		IP:       ip,
 		Addr:     port,
@@ -122,12 +124,13 @@ func sendMsg(conn *websocket.Conn, userid string, response chatComm.GroupRespons
 	ip, port := getIPAndAddr(_addr)
 
 	global.DB.Create(&model.ChatModel{
-		UserID:  response.UserId,
-		Content: response.Content,
-		IP:      ip,
-		Addr:    port,
-		IsGroup: false,
-		MsgType: response.MsgType,
+		UserID:   response.UserId,
+		TargetID: response.UserId,
+		Content:  response.Content,
+		IP:       ip,
+		Addr:     port,
+		IsGroup:  false,
+		MsgType:  response.MsgType,
 	})
 	chatUser.Conn.WriteMessage(websocket.TextMessage, byteData)
 }
