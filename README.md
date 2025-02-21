@@ -273,7 +273,7 @@ ws://127.0.0.1:8080/api/chat_private?target_id=xxxx
 
 #### 聊天记录
 
-需要用户携带token 在http request
+需要用户携带token 在http request header
 Authorization:bearer xxx.xxx.xxx
 
 ##### 群聊

@@ -84,7 +84,7 @@ func handlePrivateFileMessage(conn *websocket.Conn, cu chatComm.ChatUser, target
 
 // saveFile 保存文件并返回文件路径
 func saveFile(file *chatComm.File, userID string) (string, error) {
-	// 生成唯一的文件名（可以用时间戳或者UUID）
+	// 生成唯一的文件名（可以用时间戳或者 UUID）
 	uniqueFileName := fmt.Sprintf("%d_%s", time.Now().Unix(), file.Name)
 	// 定义文件存储路径：uploads/file/{userID}/
 	storageDir := filepath.Join(global.Config.UploadPath, "file", userID)

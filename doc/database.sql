@@ -37,13 +37,22 @@ create table if not exists chat_models
     foreign key (user_id) references user_models (user_id),
     foreign key (target_id) references user_models (user_id)
 );
-SELECT chat_models.user_id,
-       chat_models.content,
-       user.username,
-       chat_models.created_at,
-       chat_models.ip,
-       chat_models.addr
-FROM `chat_models`
-         LEFT JOIN user_models AS user ON user.user_id = chat_models.user_id
-WHERE chat_models.is_group = 1
-LIMIT 10;
+
+-- 创建文件表
+-- 创建文件表
+create table if not exists file_models (
+    id int auto_increment primary key,
+    created_at timestamp default current_timestamp,
+    updated_at timestamp default current_timestamp on update current_timestamp,
+    
+    user_id varchar(255) not null,
+    target_id varchar(255) not null,
+    path varchar(255) not null,
+    file_name varchar(255) not null,
+    file_size bigint not null,
+    file_type varchar(255) not null,
+    
+    -- 定义外键约束
+    foreign key (user_id) references user_models(user_id) on delete cascade on update cascade,
+    foreign key (target_id) references user_models(user_id) on delete cascade on update cascade
+);

@@ -2,7 +2,7 @@ package user_api
 
 import (
 	"fmt"
-	"gin-gorilla/common/userCommon"
+	"gin-gorilla/common/userComm"
 	"gin-gorilla/global"
 	"gin-gorilla/model"
 	"gin-gorilla/plugins/email"
@@ -17,7 +17,7 @@ import (
 var emailFirstReq string
 
 func (UsersApi) UserEmailLoginView(c *gin.Context) {
-	var cr userCommon.UserLoginRequest
+	var cr userComm.UserLoginRequest
 
 	if err := c.ShouldBindJSON(&cr); err != nil {
 		res.FailWithError(err, &cr, c)

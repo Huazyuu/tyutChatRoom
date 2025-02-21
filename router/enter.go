@@ -29,6 +29,8 @@ func InitRouter() *gin.Engine {
 	routerGroupApp.UsersRouter()
 	// chat api
 	routerGroupApp.ChatRouter()
+	// file api
+	routerGroupApp.FilesRouter()
 
 	return router
 }

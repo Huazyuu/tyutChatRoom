@@ -2,7 +2,7 @@ package user_api
 
 import (
 	"fmt"
-	"gin-gorilla/common/userCommon"
+	"gin-gorilla/common/userComm"
 	"gin-gorilla/global"
 	"gin-gorilla/res"
 	"gin-gorilla/service/userService"
@@ -12,7 +12,7 @@ import (
 // UserRegisterView 创建用户
 
 func (UsersApi) UserRegisterView(c *gin.Context) {
-	var cr userCommon.UserRegisterRequest
+	var cr userComm.UserRegisterRequest
 	if err := c.ShouldBindJSON(&cr); err != nil {
 		res.FailWithError(err, &cr, c)
 		return

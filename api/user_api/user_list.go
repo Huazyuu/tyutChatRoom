@@ -1,7 +1,7 @@
 package user_api
 
 import (
-	"gin-gorilla/common/userCommon"
+	"gin-gorilla/common/userComm"
 	"gin-gorilla/global"
 	"gin-gorilla/model"
 	"gin-gorilla/res"
@@ -18,7 +18,7 @@ func (UsersApi) UserListView(c *gin.Context) {
 		return
 	}
 	// 分页查询
-	var req userCommon.UserListRequest
+	var req userComm.UserListRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		res.FailWithCode(res.ArgumentError, c)
 		return

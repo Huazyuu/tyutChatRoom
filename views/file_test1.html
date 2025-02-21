@@ -5,137 +5,75 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebSocket File Upload</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-
-        #fileInput {
-            margin-bottom: 20px;
-        }
-
-        #status {
-            color: green;
-        }
-    </style>
 </head>
 
 <body>
-    <h1>File Upload via WebSocket</h1>
-    <!-- File input field -->
-    <input type="file" id="fileInput">
-    <button id="uploadBtn">Upload File</button>
-    <div id="status">WebSocket connection is not established!</div>
+<input type="file" id="fileInput">
+<button id="sendButton">发送文件</button>
+<script>
+    const jwtToken = 'bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Iua1i-ivleeUqOaItyIsInVzZXJfaWQiOiI5N2FiMDk2ZTJhIiwiZXhwIjoxNzQyNDgwNTk5LjI5NDA0MjgsImlzcyI6Inp5dXUifQ.iMYaKVNcVrS-lejRgZYGUU33CihquKhivPB5M3CwBNA';
+    const baseWsServerUrl = 'ws://127.0.0.1:8080/api/chat_private?target_id=dfe0b20eb9';
+    const wsServerUrl = `${baseWsServerUrl}&Authorization=${jwtToken}`;
+    // 创建 WebSocket 连接
+    const socket = new WebSocket(wsServerUrl);
 
-    <script>
-        const jwtToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Iua1i-ivleeUqOaItyIsInVzZXJfaWQiOiI5N2FiMDk2ZTJhIiwiZXhwIjoxNzQyNDgwNTk5LjI5NDA0MjgsImlzcyI6Inp5dXUifQ.iMYaKVNcVrS-lejRgZYGUU33CihquKhivPB5M3CwBNA";
-        const url = 'ws://127.0.0.1:8080/api/chat_groups';
-        let socket;
+    // 监听连接打开事件
+    socket.onopen = function () {
+        console.log('WebSocket 连接已打开');
+    };
 
-        // 验证 JWT 并建立 WebSocket 连接
-        function verifyTokenAndConnect() {
-            const xhr = new XMLHttpRequest();
-            xhr.open('GET', url.replace('ws:', 'http:'), true);
-            xhr.setRequestHeader('Authorization', `Bearer ${jwtToken}`);
+    // 监听连接关闭事件
+    socket.onclose = function () {
+        console.log('WebSocket 连接已关闭');
+    };
 
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        // 验证通过，建立 WebSocket 连接
-                        socket = new WebSocket(url);
+    // 监听错误事件
+    socket.onerror = function (error) {
+        console.error('WebSocket 发生错误:', error);
+    };
 
-                        // 打开 WebSocket 连接时触发
-                        socket.onopen = () => {
-                            console.log("WebSocket connection established");
-                            document.getElementById('status').textContent = "WebSocket connection established!";
-                        };
+    // 获取文件输入框和发送按钮元素
+    const fileInput = document.getElementById('fileInput');
+    const sendButton = document.getElementById('sendButton');
 
-                        // 接收 WebSocket 消息时触发
-                        socket.onmessage = (event) => {
-                            console.log("Message from server:", event.data);
-                            const serverResponse = JSON.parse(event.data);
-
-                            if (serverResponse.msg_type === 5) { // 服务器返回的回执，表示文件元数据处理成功
-                                // 文件内容开始发送
-                                sendFile();
-                            } else {
-                                document.getElementById('status').textContent = "Server response: " + event.data;
-                            }
-                        };
-
-                        // WebSocket 连接关闭时触发
-                        socket.onclose = () => {
-                            console.log("WebSocket connection closed");
-                            document.getElementById('status').textContent = "WebSocket connection closed";
-                        };
-
-                        // WebSocket 错误时触发
-                        socket.onerror = (error) => {
-                            console.error("WebSocket Error:", error);
-                            document.getElementById('status').textContent = "WebSocket Error: " + error;
-                        };
-                    } else {
-                        console.error('验证失败:', xhr.statusText);
-                        document.getElementById('status').textContent = '验证失败: ' + xhr.statusText;
-                    }
-                }
-            };
-
-            xhr.send();
-        }
-
-        // 调用验证并连接函数
-        verifyTokenAndConnect();
-
-        // 上传按钮点击事件
-        document.getElementById('uploadBtn').onclick = () => {
-            if (!socket || socket.readyState !== WebSocket.OPEN) {
-                alert("WebSocket 连接未建立，请稍后重试");
-                return;
-            }
-
-            const fileInput = document.getElementById('fileInput');
-            const file = fileInput.files[0];
-            if (!file) {
-                alert("Please select a file to upload");
-                return;
-            }
-
-            // 发送文件元数据
-            const fileMetadata = {
-                msg_type: 4,  // 文件消息类型
-                content: "Sending a file...",  // 文件描述信息
-                file: {
-                    name: file.name,
-                    type: file.type,
-                    size: file.size
-                }
-            };
-
-            // 先发送文件的元数据给后端
-            socket.send(JSON.stringify(fileMetadata));
-            document.getElementById('status').textContent = "File metadata sent, waiting for confirmation from server...";
-        };
-
-        // 发送文件内容
-        function sendFile() {
-            const fileInput = document.getElementById('fileInput');
-            const file = fileInput.files[0];
-
+    // 为发送按钮添加点击事件监听器
+    sendButton.addEventListener('click', function () {
+        const file = fileInput.files[0];
+        if (file) {
             const reader = new FileReader();
+
+            // 读取文件完成后触发
             reader.onload = function (event) {
-                // 发送文件的二进制数据
-                socket.send(event.target.result);
-                document.getElementById('status').textContent = "File uploaded successfully!";
+                const fileData = event.target.result;
+
+                // 构建 PrivateRequest 对象
+                const privateRequest = {
+                    MsgType: 5, // 根据实际情况修改消息类型
+                    Content: '', // 根据实际情况填写消息内容
+                    File: {
+                        Name: file.name,
+                        Type: file.type,
+                        Size: file.size,
+                        // 这里可以考虑使用 Blob 或 ArrayBuffer 发送文件内容
+                        // 为了简化示例，这里不发送文件内容，服务器端根据文件名和存储路径处理
+                    }
+                };
+
+                // 将请求对象转换为 JSON 字符串
+                const requestJson = JSON.stringify(privateRequest);
+
+                // 发送请求到服务器
+                socket.send(requestJson);
+                console.log('文件请求已发送');
             };
-            reader.onerror = (error) => {
-                console.error("FileReader Error:", error);
-                document.getElementById('status').textContent = "Error reading file.";
-            };
-            reader.readAsArrayBuffer(file);  // 读取文件内容为 ArrayBuffer
+
+            // 读取文件为二进制数据
+            reader.readAsArrayBuffer(file);
+        } else {
+            console.log('请选择一个文件');
         }
-    </script>
+    });
+</script>
 </body>
 
 </html>

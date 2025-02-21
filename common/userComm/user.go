@@ -1,4 +1,4 @@
-package userCommon
+package userComm
 
 type UserRegisterRequest struct {
 	UserName string `json:"username" binding:"required" msg:"请输入用户名"`
