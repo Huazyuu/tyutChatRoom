@@ -57,7 +57,7 @@ func sendPrivateMessage(conn *websocket.Conn, response chatComm.PrivateResponse)
 		Content:  response.Content,
 		IP:       ip,
 		Addr:     port,
-		IsGroup:  false,
+		IsGroup:  true,
 		MsgType:  response.MsgType,
 	})
 

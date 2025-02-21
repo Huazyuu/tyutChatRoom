@@ -34,8 +34,8 @@ func (ChatApi) ChatGroupView(c *gin.Context) {
 
 	chatUser := chatComm.ChatUser{
 		Conn:     conn,
-		UserID:   userid,
-		Username: username,
+		UserID:   username,
+		Username: userid,
 		Avatar:   avatar,
 	}
 	mu.Lock()
