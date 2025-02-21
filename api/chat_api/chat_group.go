@@ -13,11 +13,16 @@ import (
 
 // ChatGroupView 群聊接口
 func (ChatApi) ChatGroupView(c *gin.Context) {
-	_claims, _ := c.Get("claims")
+	_claims, exists := c.Get("claims")
+	if !exists {
+		res.FailWithMessage("未通过 JWT 验证", c)
+		return
+	}
 	claims := _claims.(*jwt.CustomClaims)
 	// http 升级 websockets protocol
 	conn, err := wsService.WSUpgarde(claims, c)
 	if err != nil {
+		global.Log.Error("WS Upgarder 失败", err.Error())
 		res.FailWithCode(res.ArgumentError, c)
 		return
 	}

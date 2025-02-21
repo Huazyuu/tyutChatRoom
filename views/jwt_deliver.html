@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket with JWT in URL</title>
+</head>
+
+<body>
+<script>
+    const jwtToken = 'bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Iua1i-ivleeUqOaItyIsInVzZXJfaWQiOiI5N2FiMDk2ZTJhIiwiZXhwIjoxNzQyNDgwNTk5LjI5NDA0MjgsImlzcyI6Inp5dXUifQ.iMYaKVNcVrS-lejRgZYGUU33CihquKhivPB5M3CwBNA';
+    const baseWsServerUrl = 'ws://127.0.0.1:8080/api/chat_groups';
+    const wsServerUrl = `${baseWsServerUrl}?Authorization=${jwtToken}`;
+
+    // 建立 WebSocket 连接
+    const socket = new WebSocket(wsServerUrl);
+
+    // 监听 WebSocket 连接打开事件
+    socket.addEventListener('open', (event) => {
+        console.log('WebSocket 连接已打开');
+        const data = {
+            "content": "hello google",
+            "msg_type": 4
+        };
+
+        // 将 JavaScript 对象转换为 JSON 字符串
+        const jsonData = JSON.stringify(data);
+
+        // 发送 JSON 数据
+        socket.send(jsonData);
+
+        console.log('数据已发送');
+    });
+
+    // 监听 WebSocket 接收到消息事件
+    socket.addEventListener('message', (event) => {
+        console.log('接收到服务器消息:', event.data);
+    });
+
+    // 监听 WebSocket 连接关闭事件
+    socket.addEventListener('close', (event) => {
+        console.log('WebSocket 连接已关闭');
+    });
+
+    // 监听 WebSocket 发生错误事件
+    socket.addEventListener('error', (event) => {
+        console.error('WebSocket 发生错误:', event);
+    });
+</script>
+</body>
+
+</html>

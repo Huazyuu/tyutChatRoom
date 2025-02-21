@@ -166,7 +166,33 @@ go version >= 1.20
 #### 群聊
 
 需要用户携带token
+params Authorization:bearer xxx.xxx.xxx
+```js
+    const jwtToken = 'bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Iua1i-ivleeUqOaItyIsInVzZXJfaWQiOiI5N2FiMDk2ZTJhIiwiZXhwIjoxNzQyNDgwNTk5LjI5NDA0MjgsImlzcyI6Inp5dXUifQ.iMYaKVNcVrS-lejRgZYGUU33CihquKhivPB5M3CwBNA';
+    const baseWsServerUrl = 'ws://127.0.0.1:8080/api/chat_groups';
+    const wsServerUrl = `${baseWsServerUrl}?Authorization=${jwtToken}`;
 
+    // 建立 WebSocket 连接
+    const socket = new WebSocket(wsServerUrl);
+
+    // 监听 WebSocket 连接打开事件
+    socket.addEventListener('open', (event) => {
+        console.log('WebSocket 连接已打开');
+        const data = {
+            "content": "hello google",
+            "msg_type": 4
+        };
+
+        // 将 JavaScript 对象转换为 JSON 字符串
+        const jsonData = JSON.stringify(data);
+
+        // 发送 JSON 数据
+        socket.send(jsonData);
+
+        console.log('数据已发送');
+    });
+
+```
 `ws://127.0.0.1:8080/api/chat_groups`
 
 | 类型(int)       | 值   |
@@ -203,6 +229,7 @@ go version >= 1.20
 #### 私聊
 
 需要用户携带token
+params Authorization:bearer xxx.xxx.xxx
 
 `ws://127.0.0.1:8080/api/chat_private`
 
@@ -246,7 +273,8 @@ ws://127.0.0.1:8080/api/chat_private?target_id=xxxx
 
 #### 聊天记录
 
-需要用户携带token
+需要用户携带token 在http request
+Authorization:bearer xxx.xxx.xxx
 
 ##### 群聊
 
