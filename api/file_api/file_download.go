@@ -56,5 +56,4 @@ func (FilesApi) FileDownloadView(c *gin.Context) {
 
 	// 发送文件给客户端
 	c.File(fileModel.Path)
-
 }

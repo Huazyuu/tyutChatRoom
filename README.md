@@ -167,6 +167,7 @@ go version >= 1.20
 
 需要用户携带token
 params Authorization:bearer xxx.xxx.xxx
+
 ```js
     const jwtToken = 'bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Iua1i-ivleeUqOaItyIsInVzZXJfaWQiOiI5N2FiMDk2ZTJhIiwiZXhwIjoxNzQyNDgwNTk5LjI5NDA0MjgsImlzcyI6Inp5dXUifQ.iMYaKVNcVrS-lejRgZYGUU33CihquKhivPB5M3CwBNA';
     const baseWsServerUrl = 'ws://127.0.0.1:8080/api/chat_groups';
@@ -193,6 +194,7 @@ params Authorization:bearer xxx.xxx.xxx
     });
 
 ```
+
 `ws://127.0.0.1:8080/api/chat_groups`
 
 | 类型(int)       | 值   |
@@ -300,3 +302,51 @@ Authorization:bearer xxx.xxx.xxx
 | sort     | username asc/desc              |
 | username | 输入用户名查找于其相关私聊记录 |
 
+---
+
+
+
+### 文件管理
+
+#### 上传
+
+需要BearerToken
+
+| params    | value         |
+| --------- | ------------- |
+| target_id | 10位的user_id |
+
+| form-data | value    |
+| --------- | -------- |
+| file      | 文件对象 |
+
+**resp**
+
+```json
+{
+    "code": 0,
+    "data": {
+        "user_id": "dfe0b20eb9",
+        "target_id": "97ab096e2a",
+        "path": "uploads\\file\\adminUser\\1740377182215261100_《计算机网络课程设计》课设目标.md",
+        "file_name": "1740377182215261100_《计算机网络课程设计》课设目标.md",
+        "file_size": 6915,
+        "file_type": "md"
+    },
+    "msg": "成功"
+}
+```
+
+
+
+
+
+下载
+
+需要BearerToken
+
+| params | value  |
+| ------ | ------ |
+| file   | 文件名 |
+
+返回文件对象

@@ -1,7 +1,6 @@
 package file_api
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"gin-gorilla/common/fileComm"
@@ -23,7 +22,7 @@ func (FilesApi) FileUploadView(c *gin.Context) {
 	userid := claims.UserID
 	targetid := c.Query("target_id")
 	// id是否存在
-	result := global.DB.First(&model.UserModel{}, "id = ?", userid)
+	result := global.DB.First(&model.UserModel{}, "user_id = ?", userid)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			global.Log.Error("目标用户不存在")
@@ -89,8 +88,8 @@ func (FilesApi) FileUploadView(c *gin.Context) {
 
 	// 插入文件信息到数据库
 	fileModel := model.FileModel{
-		UserID:   userid,   // 假设 claims 中有 UserID 字段
-		TargetID: targetid, // 这里暂时假设 target_id 和 user_id 相同，可根据实际情况修改
+		UserID:   userid,
+		TargetID: targetid,
 		Path:     filePath,
 		FileName: uniqueFileName,
 		FileSize: fileInfo.Size(),
@@ -108,19 +107,19 @@ func (FilesApi) FileUploadView(c *gin.Context) {
 		TargetID: targetid,
 		Path:     filePath,
 		FileName: uniqueFileName,
-		FileSize: fileInfo.Size(),
+		FileSize: int(fileInfo.Size()),
 		FileType: fileExt[1:],
 	}
-	// 返回响应
-	response := map[string]interface{}{
-		"Content": filePath,
-		"File": map[string]interface{}{
-			"Name": uniqueFileName,
-			"Type": fileExt[1:],
-			"Size": fileInfo.Size(),
-		},
-	}
-	jsonData, _ := json.Marshal(response)
-	jsonString := string(jsonData)
-	res.OkWithData(jsonString, c)
+	/*	// 返回响应
+		response := map[string]interface{}{
+			"Content": filePath,
+			"File": map[string]interface{}{
+				"Name": uniqueFileName,
+				"Type": fileExt[1:],
+				"Size": fileInfo.Size(),
+			},
+		}
+		jsonData, _ := json.Marshal(response)
+		jsonString := string(jsonData)*/
+	res.OkWithData(resp, c)
 }
