@@ -1,14 +1,21 @@
 package chatService
 
 import (
+	"bytes"
 	"fmt"
+	"gin-gorilla/model/ctype"
+
+	"os"
+
 	"gin-gorilla/common/chatComm"
 	"gin-gorilla/global"
 	"gin-gorilla/model"
 	"github.com/gorilla/websocket"
+
 	"io"
-	"os"
-	"path/filepath"
+	"mime/multipart"
+	"net/http"
+
 	"time"
 )
 
@@ -34,12 +41,18 @@ func handlePrivateFileMessage(conn *websocket.Conn, cu chatComm.ChatUser, target
 		return
 	}
 
-	// 获取文件的详细信息
-	file := req.File
-	filePath, err := saveFile(file, cu.UserID)
-	if err != nil {
-		_ = sendPrivateSystemMsg(conn, "文件保存失败")
-		return
+	if req.MsgType == ctype.FileUploadMsg {
+		err := requestFileUpload(conn, cu, req, targetid)
+		if err != nil {
+			global.Log.Error(err.Error())
+			return
+		}
+	} else if req.MsgType == ctype.FileDownloadMsg {
+		err := requestFileDownload(conn, cu, req, targetid)
+		if err != nil {
+			global.Log.Error(err.Error())
+			return
+		}
 	}
 
 	// 获取目标用户的用户名和头像
@@ -47,7 +60,7 @@ func handlePrivateFileMessage(conn *websocket.Conn, cu chatComm.ChatUser, target
 	targetAvatar := model.SelectAvatar(targetid)
 
 	// 发送文件消息到目标用户
-	err = sendPrivateMessage(receiver, chatComm.PrivateResponse{
+	err := sendPrivateMessage(receiver, chatComm.PrivateResponse{
 		UserId:       cu.UserID,
 		Username:     cu.Username,
 		Avatar:       cu.Avatar,
@@ -55,7 +68,7 @@ func handlePrivateFileMessage(conn *websocket.Conn, cu chatComm.ChatUser, target
 		TargetName:   targetName,
 		TargetAvatar: targetAvatar,
 		MsgType:      req.MsgType,
-		Content:      filePath, // 发送文件链接
+		Content:      req.File.Path, // 发送文件链接
 		Date:         time.Now(),
 		OnlineCount:  len(usersInRoom),
 	})
@@ -63,7 +76,6 @@ func handlePrivateFileMessage(conn *websocket.Conn, cu chatComm.ChatUser, target
 		_ = sendBackSystemMsg(conn, "发送文件消息失败")
 		return
 	}
-
 	// 回执
 	err = sendBackMessage(conn, chatComm.PrivateResponse{
 		UserId:       cu.UserID,
@@ -73,7 +85,7 @@ func handlePrivateFileMessage(conn *websocket.Conn, cu chatComm.ChatUser, target
 		TargetName:   targetName,
 		TargetAvatar: targetAvatar,
 		MsgType:      req.MsgType,
-		Content:      filePath, // 发送文件链接回执
+		Content:      req.File.Path, // 发送文件链接回执
 		Date:         time.Now(),
 		OnlineCount:  len(usersInRoom),
 	})
@@ -82,33 +94,87 @@ func handlePrivateFileMessage(conn *websocket.Conn, cu chatComm.ChatUser, target
 	}
 }
 
-// saveFile 保存文件并返回文件路径
-func saveFile(file *chatComm.File, userID string) (string, error) {
-	// 生成唯一的文件名（可以用时间戳或者 UUID）
-	uniqueFileName := fmt.Sprintf("%d_%s", time.Now().Unix(), file.Name)
-	// 定义文件存储路径：uploads/file/{userID}/
-	storageDir := filepath.Join(global.Config.UploadPath, "file", userID)
-	// 确保目录存在
-	if err := os.MkdirAll(storageDir, os.ModePerm); err != nil {
-		return "", fmt.Errorf("创建文件夹失败: %v", err)
-	}
-
-	// 文件的完整路径
-	filePath := filepath.Join(storageDir, uniqueFileName)
-
-	// 保存文件到本地
-	outFile, err := os.Create(filePath)
+// requestFileUpload 接收前端文件并转发到另一个后端接口
+func requestFileUpload(conn *websocket.Conn, cu chatComm.ChatUser, req chatComm.PrivateRequest, targetid string) error {
+	// 打开文件
+	file, err := os.Open(req.File.Path)
 	if err != nil {
-		return "", fmt.Errorf("创建文件失败: %v", err)
+		global.Log.Error(err.Error())
+		sendBackSystemMsg(conn, "打开文件失败")
+		return err
 	}
-	defer outFile.Close()
+	defer file.Close()
 
-	// 将接收到的文件内容写入磁盘
-	_, err = io.Copy(outFile, file.Reader)
+	// 构造 HTTP 请求
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+
+	// 添加文件
+	fileField, err := writer.CreateFormFile("file", req.File.Name)
 	if err != nil {
-		return "", fmt.Errorf("保存文件失败: %v", err)
+		global.Log.Error(err.Error())
+		sendBackSystemMsg(conn, "创建文件字段失败")
+		return err
 	}
+	_, err = io.Copy(fileField, file)
+	if err != nil {
+		global.Log.Error(err)
+		sendBackSystemMsg(conn, "写入数据失败")
+		return err
+	}
+	writer.Close()
+	// 构造 HTTP 请求
+	url := fmt.Sprintf("http://127.0.0.1:8080/api/files/upload?target_id=%s", targetid)
+	reqHTTP, err := http.NewRequest("POST", url, body)
+	if err != nil {
+		global.Log.Error(err.Error())
+		sendBackSystemMsg(conn, "请求失败")
+		return err
+	}
+	reqHTTP.Header.Set("Content-Type", writer.FormDataContentType())
+	// 假设添加 JWT 认证头
+	var user model.UserModel
+	global.DB.Select("token").Model(&model.UserModel{}).Where("user_id = ?", cu.UserID).First(&user)
+	reqHTTP.Header.Set("Authorization", fmt.Sprintf("Bearer %v", user.Token))
 
-	// 返回文件的存储路径
-	return filePath, nil
+	// 发送 HTTP 请求
+	client := &http.Client{}
+	resp, err := client.Do(reqHTTP)
+	if err != nil {
+		global.Log.Error(err.Error())
+		sendBackSystemMsg(conn, "请求失败")
+		return err
+	}
+	defer resp.Body.Close()
+	return nil
+}
+
+// requestFileDownload 接收前端文件并转发到另一个后端接口
+func requestFileDownload(conn *websocket.Conn, cu chatComm.ChatUser, req chatComm.PrivateRequest, targetid string) error {
+	// 构造 HTTP 请求
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	url := fmt.Sprintf("http://127.0.0.1:8080/api/files/download?file=%s", req.File.Name)
+	reqHTTP, err := http.NewRequest("GET", url, body)
+	if err != nil {
+		global.Log.Error(err.Error())
+		sendBackSystemMsg(conn, "请求失败")
+		return err
+	}
+	reqHTTP.Header.Set("Content-Type", writer.FormDataContentType())
+	// 假设添加 JWT 认证头
+	var user model.UserModel
+	global.DB.Select("token").Model(&model.UserModel{}).Where("user_id = ?", cu.UserID).First(&user)
+	reqHTTP.Header.Set("Authorization", fmt.Sprintf("Bearer %v", user.Token))
+	// 发送 HTTP 请求
+	client := &http.Client{}
+	resp, err := client.Do(reqHTTP)
+	if err != nil {
+		global.Log.Error(err.Error())
+		sendBackSystemMsg(conn, "请求失败")
+		return err
+	}
+	fmt.Println(resp)
+	defer resp.Body.Close()
+	return nil
 }

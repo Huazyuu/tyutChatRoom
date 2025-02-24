@@ -341,7 +341,7 @@ Authorization:bearer xxx.xxx.xxx
 
 
 
-下载
+#### 下载
 
 需要BearerToken
 
@@ -350,3 +350,63 @@ Authorization:bearer xxx.xxx.xxx
 | file   | 文件名 |
 
 返回文件对象
+
+#### ws调用文件相关http
+
+```
+// 上传
+//ws req
+{
+    "content": "hello test",
+    "msg_type": 5,
+    "file": {
+        "path": "C:/Users/yu/Desktop/设计模式.txt",
+        "name": "ws上传下载测试.txt",
+        "type": "md",
+        "size": 0
+    }
+}
+
+// ws resp
+{
+    "user_id": "97ab096e2a",
+    "username": "测试用户",
+    "avatar": "uploads/avatar/测试用户.png",
+    "target_id": "dfe0b20eb9",
+    "target_name": "adminUser",
+    "target_avatar": "uploads/avatar/adminUser.png",
+    "msg_type": 5,
+    "content": "C:/Users/yu/Desktop/设计模式.txt",
+    "date": "2025-02-24T17:19:29.5441526+08:00",
+    "online_count": 2
+}
+```
+
+```下载
+// 下载
+//req 
+{
+    "content": "hello test",
+    "msg_type": 6,
+    "file": {
+        "name": "ws上传下载测试2.txt",
+        "type": "md",
+        "size": 0
+    }
+}
+// resp 返回文件对象
+// resp info json
+{
+    "user_id": "dfe0b20eb9",
+    "username": "adminUser",
+    "avatar": "uploads/avatar/adminUser.png",
+    "target_id": "97ab096e2a",
+    "target_name": "测试用户",
+    "target_avatar": "uploads/avatar/测试用户.png",
+    "msg_type": 6,
+    "content": "",
+    "date": "2025-02-24T17:25:26.8921766+08:00",
+    "online_count": 2
+}
+```
+

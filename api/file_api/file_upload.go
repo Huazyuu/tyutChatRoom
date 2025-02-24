@@ -2,7 +2,6 @@ package file_api
 
 import (
 	"errors"
-	"fmt"
 	"gin-gorilla/common/fileComm"
 	"gin-gorilla/global"
 	"gin-gorilla/model"
@@ -12,7 +11,6 @@ import (
 	"gorm.io/gorm"
 	"os"
 	"path/filepath"
-	"time"
 )
 
 // FileUploadView 处理文件上传的函数
@@ -47,7 +45,7 @@ func (FilesApi) FileUploadView(c *gin.Context) {
 
 	// 获取文件名 类型
 	fileName := file.Filename
-	uniqueFileName := fmt.Sprintf("%d_%s", time.Now().UnixNano(), fileName) // 使用纳秒生成唯一文件名
+	// uniqueFileName := fmt.Sprintf("%d_%s", time.Now().UnixNano(), fileName) // 使用纳秒生成唯一文件名
 	fileExt := filepath.Ext(fileName)
 
 	uploadsDir := global.Config.UploadPath
@@ -70,7 +68,7 @@ func (FilesApi) FileUploadView(c *gin.Context) {
 		}
 	}
 
-	filePath := filepath.Join(userDir, uniqueFileName)
+	filePath := filepath.Join(userDir, fileName)
 	// 保存文件
 	if err := c.SaveUploadedFile(file, filePath); err != nil {
 		global.Log.Error("保存文件失败")
@@ -91,7 +89,7 @@ func (FilesApi) FileUploadView(c *gin.Context) {
 		UserID:   userid,
 		TargetID: targetid,
 		Path:     filePath,
-		FileName: uniqueFileName,
+		FileName: fileName,
 		FileSize: fileInfo.Size(),
 		FileType: fileExt[1:],
 	}
@@ -106,20 +104,9 @@ func (FilesApi) FileUploadView(c *gin.Context) {
 		UserID:   userid,
 		TargetID: targetid,
 		Path:     filePath,
-		FileName: uniqueFileName,
+		FileName: fileName,
 		FileSize: int(fileInfo.Size()),
 		FileType: fileExt[1:],
 	}
-	/*	// 返回响应
-		response := map[string]interface{}{
-			"Content": filePath,
-			"File": map[string]interface{}{
-				"Name": uniqueFileName,
-				"Type": fileExt[1:],
-				"Size": fileInfo.Size(),
-			},
-		}
-		jsonData, _ := json.Marshal(response)
-		jsonString := string(jsonData)*/
 	res.OkWithData(resp, c)
 }

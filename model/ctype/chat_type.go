@@ -8,7 +8,8 @@ const (
 	OutRoomMsg
 
 	TextMsg
-	FileMsg
+	FileUploadMsg
+	FileDownloadMsg
 	FileProgressMsg
 	ImageMsg
 )

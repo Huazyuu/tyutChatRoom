@@ -31,10 +31,12 @@ func (FilesApi) FileDownloadView(c *gin.Context) {
 
 	// 从数据库中查询文件信息
 	var fileModel model.FileModel
-	result := global.DB.Where("user_id =? AND file_name =?", claims.UserID, fileName).First(&fileModel)
+	// result := global.DB.Where("user_id =? AND file_name =?", claims.UserID, fileName).First(&fileModel)
+	result := global.DB.Where("file_name = ? ", fileName).First(&fileModel)
 	if result.Error != nil {
 		if result.Error.Error() == "record not found" {
 			global.Log.Error("文件记录不存在")
+			global.Log.Error(claims.UserID, fileName)
 			res.FailWithMessage("文件记录不存在", c)
 		} else {
 			global.Log.Error("查询文件记录失败")

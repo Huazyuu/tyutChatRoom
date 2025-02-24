@@ -9,9 +9,9 @@ import (
 var ConnPrivateMap = make(map[string][]ChatUser)
 
 type PrivateRequest struct {
-	MsgType ctype.MsgType `json:"msg_type"`       // 消息类型
-	Content string        `json:"content"`        // 消息内容
-	File    *File         `json:"file,omitempty"` // 文件上传
+	MsgType ctype.MsgType `json:"msg_type"` // 消息类型
+	Content string        `json:"content"`  // 消息内容
+	File    File          `json:"file"`     // 文件上传
 }
 
 // PrivateResponse 响应

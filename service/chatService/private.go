@@ -12,14 +12,16 @@ import (
 
 // ChatPrivateService 处理群聊
 func ChatPrivateService(conn *websocket.Conn, cu chatComm.ChatUser, targetid string) {
-	var req chatComm.PrivateRequest
 
 	for {
+		var req chatComm.PrivateRequest
 		_, content, err := conn.ReadMessage()
 		if err != nil {
 			break
 		}
 		if err := json.Unmarshal(content, &req); err != nil {
+			global.Log.Error(req)
+			global.Log.Error(err)
 			sendPrivateSystemMsg(conn, "消息解析失败")
 			continue
 		}
@@ -27,7 +29,9 @@ func ChatPrivateService(conn *websocket.Conn, cu chatComm.ChatUser, targetid str
 		switch req.MsgType {
 		case ctype.TextMsg:
 			handlePrivateTextMessage(conn, cu, targetid, req)
-		case ctype.FileMsg:
+		case ctype.FileUploadMsg:
+			handlePrivateFileMessage(conn, cu, targetid, req)
+		case ctype.FileDownloadMsg:
 			handlePrivateFileMessage(conn, cu, targetid, req)
 		default:
 			_ = sendPrivateSystemMsg(conn, "不支持的消息类型")

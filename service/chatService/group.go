@@ -19,13 +19,17 @@ func ChatGroupService(conn *websocket.Conn, cu chatComm.ChatUser) {
 		_, content, err := conn.ReadMessage()
 		if err != nil {
 			// 断开连接
-			sendGroupMsg(conn, chatComm.GroupResponse{
-				UserId:      cu.UserID,
-				Username:    cu.Username,
-				Avatar:      cu.Avatar,
+			sendGroupMsg(conn, chatComm.ChatMessage{
+				MsgType: ctype.OutRoomMsg,
+				Sender: chatComm.ChatUser{
+					Conn:     nil,
+					UserID:   cu.UserID,
+					Username: cu.Username,
+					Avatar:   cu.Avatar,
+				},
+				Target:      "global_user",
 				Content:     fmt.Sprintf("[%s]离开聊天室", cu.Username),
 				Date:        time.Now(),
-				MsgType:     ctype.OutRoomMsg,
 				OnlineCount: len(chatComm.ConnGroupMap) - 1,
 			})
 			break
@@ -35,13 +39,16 @@ func ChatGroupService(conn *websocket.Conn, cu chatComm.ChatUser) {
 		err = json.Unmarshal(content, &req)
 		if err != nil {
 			// 参数绑定失败
-			sendMsg(conn, cu.UserID, chatComm.GroupResponse{
-				UserId:      cu.UserID,
-				Username:    cu.Username,
-				Avatar:      cu.Avatar,
-				MsgType:     ctype.SystemMsg,
-				Date:        time.Now(),
+			sendMsg(conn, cu.UserID, chatComm.ChatMessage{
+				MsgType: ctype.SystemMsg,
+				Sender: chatComm.ChatUser{
+					Conn:     nil,
+					UserID:   cu.UserID,
+					Username: cu.Username,
+					Avatar:   cu.Avatar,
+				},
 				Content:     "参数绑定失败",
+				Date:        time.Now(),
 				OnlineCount: len(chatComm.ConnGroupMap),
 			})
 			continue
@@ -51,41 +58,57 @@ func ChatGroupService(conn *websocket.Conn, cu chatComm.ChatUser) {
 		case ctype.TextMsg:
 			// 内容为空
 			if strings.TrimSpace(req.Content) == "" {
-				sendMsg(conn, cu.UserID, chatComm.GroupResponse{
-					UserId:      cu.UserID,
-					Username:    cu.Username,
-					Avatar:      cu.Avatar,
-					MsgType:     ctype.SystemMsg,
+				sendMsg(conn, cu.UserID, chatComm.ChatMessage{
+					MsgType: ctype.SystemMsg,
+					Sender: chatComm.ChatUser{
+						Conn:     nil,
+						UserID:   cu.UserID,
+						Username: cu.Username,
+						Avatar:   cu.Avatar,
+					},
 					Content:     "消息不能为空",
+					Date:        time.Now(),
 					OnlineCount: len(chatComm.ConnGroupMap),
 				})
 				continue
 			}
-			sendGroupMsg(conn, chatComm.GroupResponse{
-				UserId:      cu.UserID,
-				Username:    cu.Username,
-				Avatar:      cu.Avatar,
+			sendGroupMsg(conn, chatComm.ChatMessage{
+				MsgType: ctype.SystemMsg,
+				Sender: chatComm.ChatUser{
+					Conn:     nil,
+					UserID:   cu.UserID,
+					Username: cu.Username,
+					Avatar:   cu.Avatar,
+				},
 				Content:     req.Content,
-				MsgType:     ctype.TextMsg,
 				Date:        time.Now(),
 				OnlineCount: len(chatComm.ConnGroupMap),
 			})
 		case ctype.InRoomMsg:
-			sendGroupMsg(conn, chatComm.GroupResponse{
-				UserId:      cu.UserID,
-				Username:    cu.Username,
-				Avatar:      cu.Avatar,
+			sendGroupMsg(conn, chatComm.ChatMessage{
+				MsgType: ctype.SystemMsg,
+				Sender: chatComm.ChatUser{
+					Conn:     nil,
+					UserID:   cu.UserID,
+					Username: cu.Username,
+					Avatar:   cu.Avatar,
+				},
+				Target:      "global_user",
 				Content:     fmt.Sprintf("[%s]进入聊天室", cu.Username),
 				Date:        time.Now(),
 				OnlineCount: len(chatComm.ConnGroupMap),
 			})
 		default:
-			sendMsg(conn, cu.UserID, chatComm.GroupResponse{
-				UserId:      cu.UserID,
-				Username:    cu.Username,
-				Avatar:      cu.Avatar,
-				MsgType:     ctype.SystemMsg,
-				Content:     "消息类型错误",
+			sendMsg(conn, cu.UserID, chatComm.ChatMessage{
+				MsgType: ctype.SystemMsg,
+				Sender: chatComm.ChatUser{
+					Conn:     nil,
+					UserID:   cu.UserID,
+					Username: cu.Username,
+					Avatar:   cu.Avatar,
+				},
+				Content:     "参数类型错误",
+				Date:        time.Now(),
 				OnlineCount: len(chatComm.ConnGroupMap),
 			})
 		}
@@ -94,7 +117,7 @@ func ChatGroupService(conn *websocket.Conn, cu chatComm.ChatUser) {
 }
 
 // sendGroupMsg 群聊功能
-func sendGroupMsg(conn *websocket.Conn, response chatComm.GroupResponse) {
+func sendGroupMsg(conn *websocket.Conn, response chatComm.ChatMessage) {
 	byteData, _ := json.Marshal(response)
 	_addr := conn.RemoteAddr().String()
 	ip, port := getIPAndAddr(_addr)
@@ -102,9 +125,9 @@ func sendGroupMsg(conn *websocket.Conn, response chatComm.GroupResponse) {
 	// global.Log.Debug(response)
 
 	global.DB.Create(&model.ChatModel{
-		UserID:   response.UserId,
+		UserID:   response.Sender.UserID,
 		TargetID: "globaluser",
-		Content:  response.Content,
+		Content:  response.Content.(string),
 		IP:       ip,
 		Addr:     port,
 		IsGroup:  true,
@@ -115,8 +138,8 @@ func sendGroupMsg(conn *websocket.Conn, response chatComm.GroupResponse) {
 	}
 }
 
-// sendMsg 给某个用户发消息
-func sendMsg(conn *websocket.Conn, userid string, response chatComm.GroupResponse) {
+// sendMsg sys消息
+func sendMsg(conn *websocket.Conn, userid string, response chatComm.ChatMessage) {
 	byteData, _ := json.Marshal(response)
 	chatUser := chatComm.ConnGroupMap[userid]
 
@@ -124,9 +147,9 @@ func sendMsg(conn *websocket.Conn, userid string, response chatComm.GroupRespons
 	ip, port := getIPAndAddr(_addr)
 
 	global.DB.Create(&model.ChatModel{
-		UserID:   response.UserId,
-		TargetID: response.UserId,
-		Content:  response.Content,
+		UserID:   response.Sender.UserID,
+		TargetID: response.Sender.UserID,
+		Content:  response.Content.(string),
 		IP:       ip,
 		Addr:     port,
 		IsGroup:  false,
