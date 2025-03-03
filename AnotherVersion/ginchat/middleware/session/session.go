@@ -50,7 +50,6 @@ func GetSessionUserInfo(c *gin.Context) map[string]any {
 	return data
 }
 
-// ClearAuthSession 清除sessio
 // ClearAuthSession 清除session
 func ClearAuthSession(c *gin.Context) {
 	session := sessions.Default(c)
@@ -69,18 +68,19 @@ func HasSession(c *gin.Context) bool {
 }
 
 // AuthSessionMiddle 鉴权中间件
+func AuthSessionMiddle() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		session := sessions.Default(c)
 		sessionValue := session.Get("uid")
 		if sessionValue == nil {
-        if sessionValue == nil {
+			zap.L().Info("session缺失")
 			c.Redirect(http.StatusFound, "/")
 			return
 		}
-        }
+
 		var uidInt int
 		var err error
-        var err error
+
 		// 检查 sessionValue 的类型
 		switch v := sessionValue.(type) {
 		case string:
@@ -91,17 +91,16 @@ func HasSession(c *gin.Context) bool {
 			c.Redirect(http.StatusFound, "/")
 			return
 		}
-        }
+
 		if err != nil || uidInt <= 0 {
 			c.Redirect(http.StatusFound, "/")
 			return
 		}
-        }
+
 		// 设置简单的变量
 		c.Set("uid", sessionValue)
-        c.Set("uid", sessionValue)
+
 		c.Next()
 		return
 	}
-    }
 }
