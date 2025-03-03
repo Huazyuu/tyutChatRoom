@@ -1,0 +1,23 @@
+app:
+  port: 8080
+  upload_file_path: ./uploads/
+  # 生成加密session
+  cookie_key: zyuuforyu
+  serve_type: GoServe
+  mode: release
+
+
+picture_bed:
+  type: freeimg
+  api_key: 
+
+mysql:
+  dsn: root:123456@tcp(127.0.0.1:3307)/go_gin_chat?charset=utf8mb4&parseTime=True&loc=Local
+
+
+log:
+  level: debug
+  filename: ./logdoc/loginfo.log
+  max_size: 200
+  max_age: 30
+  max_backups: 7

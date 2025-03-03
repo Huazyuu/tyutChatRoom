@@ -29,13 +29,12 @@ bulid/
 *.dll
 *.so
 *.dylib
- 
-# Log
-log
-*.log
 
 # generate img
 uploads/avatar
 uploads/file
 
 
+# version2
+AnotherVersion/ginchat/logdoc
+AnotherVersion/ginchat/uploads
